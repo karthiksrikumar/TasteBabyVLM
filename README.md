@@ -1,7 +1,6 @@
 # TasteBabyVLM
 
-Evaluating **Qwen3-VL-30B-A3B-Instruct** as an automated annotator on the
-Gong Lab (Boston University) taste-annotation schema for infant/child
+Evaluating **Qwen3-VL-30B-A3B-Instruct** as an automated annotator on the taste-annotation schema for infant/child
 home-video clips — how well it detects eating, identifies the food, judges
 flavor, and (crucially) attributes *who* is feeding whom.
 
