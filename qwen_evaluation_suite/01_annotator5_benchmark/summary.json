@@ -1,0 +1,34 @@
+{
+  "model": "Qwen/Qwen3-VL-30B-A3B-Instruct",
+  "n_clips": 101,
+  "metrics": {
+    "Scenario (3-way)": {
+      "value": 0.6732673267326733,
+      "n": 101
+    },
+    "Eating vs not (binary)": {
+      "value": 0.8514851485148515,
+      "n": 101
+    },
+    "Verb*": {
+      "value": 0.3333333333333333,
+      "n": 48
+    },
+    "Condition*": {
+      "value": 0.7083333333333334,
+      "n": 48
+    },
+    "Flavor profile*": {
+      "value": 0.3541666666666667,
+      "n": 48
+    },
+    "Noun exact match*": {
+      "value": 0.7083333333333334,
+      "n": 48
+    },
+    "Noun mean cosine sim*": {
+      "value": 0.8203785202425459,
+      "n": 46
+    }
+  }
+}

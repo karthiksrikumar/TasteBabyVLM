@@ -1,0 +1,17 @@
+Reliability + few-shot transfer
+
+field         self-agree   human env
+scenario           88.1%       64.8%
+verb               91.2%       69.5%
+additional_condition       90.4%       71.5%
+flavor_profile       93.4%       64.6%
+noun               87.5%       60.7%
+
+field          0-shot   4-shot   8-shot
+scenario        67.3%    60.4%    68.3%
+verb            33.3%    35.4%    35.4%
+additional_condition    70.8%    75.0%    75.0%
+flavor_profile    35.4%    45.8%    43.8%
+noun            71.7%    76.1%    73.9%
+
+agency (human-fed clips): 0-shot=0%  4-shot=0%  8-shot=0%

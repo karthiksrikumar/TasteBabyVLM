@@ -1,0 +1,18 @@
+{
+  "subskills": {
+    "Full verb (composite)": 0.4166666666666667,
+    "Full verb (scaffolded)": 0.5208333333333334,
+    "Full verb (reworded)": 0.4375,
+    "Agency (from composite)": 0.5833333333333334,
+    "Agency (asked alone)": 0.5416666666666666,
+    "Agency (whose-hand probe)": 0.625,
+    "Instrument (from composite)": 0.6875,
+    "Instrument (asked alone)": 0.7708333333333334
+  },
+  "frame_sweep": {
+    "4f": 0.4375,
+    "8f": 0.4166666666666667,
+    "16f": 0.4583333333333333,
+    "32f": 0.4791666666666667
+  }
+}

@@ -1,0 +1,59 @@
+Qwen taste-annotation benchmark — Qwen/Qwen3-VL-30B-A3B-Instruct
+Ground truth: /usr4/spclpgm/srikumar/annotationTaste_5.json
+Clips compared: 101
+
+  Scenario (3-way)              67.3%  (n=101)
+  Eating vs not (binary)        85.1%  (n=101)
+  Verb*                         33.3%  (n=48)
+  Condition*                    70.8%  (n=48)
+  Flavor profile*               35.4%  (n=48)
+  Noun exact match*             70.8%  (n=48)
+  Noun mean cosine sim*         82.0%  (n=46)
+
+Noun pairs (human -> qwen, cosine):
+   0.13  'cereal'           -> '(none)'
+   0.17  'banana'           -> '(none)'
+   0.21  'unclear'          -> 'cracker'
+   0.22  'sushi'            -> '(none)'
+   0.30  'egg'              -> 'plate of food'
+   0.35  'unclear'          -> '(none)'
+   0.35  'unclear'          -> '(none)'
+   0.35  'unclear'          -> '(none)'
+   0.42  'banana'           -> 'bottle'
+   0.43  'banana'           -> 'baby food'
+   0.45  'sippy cup'        -> 'bottle'
+   0.53  'juice'            -> 'bottle'
+   0.81  'beans'            -> 'baked beans'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'cereal'           -> 'cereal'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'bread'            -> 'bread'
+   1.00  'unclear'          -> 'unclear'
+   1.00  'carrot'           -> 'carrot'
+   1.00  'pasta'            -> 'pasta'
+   1.00  'egg'              -> 'egg'
+   1.00  'egg'              -> 'egg'
+   1.00  'egg'              -> 'egg'

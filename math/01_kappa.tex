@@ -1,0 +1,106 @@
+\section{Pairwise Cohen's $\kappa$ and the agreement envelope}
+\label{sec:kappa}
+
+\subsection{Setup}
+
+Let a \emph{rater} be either a human annotator or the model, and let two
+raters $A,B$ each assign one label from a finite category set
+$\mathcal{C} = \{c_1,\dots,c_K\}$ (e.g.\ $\mathcal{C} =
+\{\text{eating},\,\text{possibly-eating},\,\text{not-eating}\}$ for the
+\texttt{scenario} field) to each of $n$ clips they both labeled. Write
+$y^A_i, y^B_i \in \mathcal{C}$ for their labels on clip $i$.
+
+\begin{definition}[Observed and chance agreement]
+The \emph{observed agreement} is
+\[
+  p_o(A,B) \;=\; \frac{1}{n}\sum_{i=1}^n \mathbb{1}\!\left[y^A_i = y^B_i\right].
+\]
+Let $\pi^A_k = \frac{1}{n}\sum_i \mathbb{1}[y^A_i = c_k]$ and
+$\pi^B_k = \frac{1}{n}\sum_i \mathbb{1}[y^B_i = c_k]$ be each rater's
+marginal frequency for category $c_k$. The \emph{chance agreement} under
+the assumption that $A$ and $B$ label independently with these marginals is
+\[
+  p_e(A,B) \;=\; \sum_{k=1}^K \pi^A_k\, \pi^B_k .
+\]
+\end{definition}
+
+\begin{definition}[Cohen's $\kappa$]
+\[
+  \kappa(A,B) \;=\; \frac{p_o(A,B) - p_e(A,B)}{1 - p_e(A,B)} .
+\]
+\end{definition}
+
+$\kappa = 1$ means perfect agreement beyond chance; $\kappa = 0$ means the
+raters agree exactly as often as two independent labelers with the same
+marginals would; $\kappa < 0$ means they agree \emph{less} than chance
+would predict (systematic disagreement).
+
+\subsection{Pooled multi-rater estimate}
+
+The suite has 11 human raters $H_1,\dots,H_{11}$ (each labeling a subset of
+the 506-clip pool, up to 3 raters per clip) plus the model, $\mathrm{Q}$.
+Rather than Fleiss' $\kappa$ (which requires every clip to have the same
+number of raters), Benchmark~3 uses a \emph{pooled pairwise} estimator: for
+a field $f$, collect every $(y^{H_i}_j, y^{H_k}_j)$ pair for every clip $j$
+that both $H_i$ and $H_k$ labeled, over all $\binom{11}{2}$ rater pairs,
+into one pooled sample $\mathcal{P}_{\mathrm{hh}}$; separately collect every
+$(y^{H_i}_j, y^{\mathrm{Q}}_j)$ pair into $\mathcal{P}_{\mathrm{qh}}$. Then
+\[
+  \kappa_{\mathrm{hh}} = \kappa\big(\mathcal{P}_{\mathrm{hh}}\big), \qquad
+  \kappa_{\mathrm{qh}} = \kappa\big(\mathcal{P}_{\mathrm{qh}}\big),
+\]
+using the same observed/chance-agreement formulas with $\mathcal{P}$ in
+place of a single rater pair's clip set.
+
+\begin{remark}[Why pooling is a reasonable but conservative estimator]
+Pairs drawn from the same clip (e.g.\ $(H_i,H_k)$ and $(H_i,H_l)$ on clip
+$j$) are not independent observations, since they share $y^{H_i}_j$. This
+does not bias $\hat\kappa$ but does mean its naive standard error is an
+underestimate; the suite reports point estimates only; a clip-clustered
+bootstrap would be the appropriate correction if confidence intervals were
+needed.
+\end{remark}
+
+\subsection{The agreement-envelope test}
+\label{subsec:envelope}
+
+The scientific question Benchmark~3 asks is not ``is Qwen accurate?''
+in isolation, but:
+\begin{quote}
+  \emph{Is $\kappa_{\mathrm{qh}}$ (and $p_{o,\mathrm{qh}}$) inside the range
+  humans achieve with each other, $\kappa_{\mathrm{hh}}$?}
+\end{quote}
+This reframes evaluation around a data-dependent ceiling rather than a
+fixed target of $100\%$, because for genuinely ambiguous clips even
+$\kappa_{\mathrm{hh}} < 1$ is the best achievable score --- no rater,
+human or model, can exceed the label's intrinsic annotator disagreement.
+Formally, if we posit a noisy-annotator model where each human rater
+observes the true (possibly ill-defined) label $Y_i$ through a
+rater-specific noise channel, $\kappa_{\mathrm{hh}}$ estimates the
+\emph{signal-to-noise ratio of the labeling task itself}, and a rater
+(model or human) with $\kappa_{\mathrm{model},h} \approx \kappa_{\mathrm{hh}}$
+is, by this criterion, indistinguishable from another human annotator.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+Field & $\kappa_{\mathrm{hh}}$ & $\kappa_{\mathrm{qh}}$ & $p_{o,\mathrm{hh}}$ & $p_{o,\mathrm{qh}}$\\
+\midrule
+scenario  & 0.44 & 0.42 & 64.8\% & 64.3\% \\
+verb      & 0.62 & 0.26 & 69.5\% & 40.5\% \\
+condition & 0.28 & 0.28 & 71.5\% & 76.4\% \\
+flavor    & 0.52 & 0.26 & 64.6\% & 44.2\% \\
+noun      & 0.55 & 0.48 & 60.7\% & 57.8\% \\
+\bottomrule
+\end{tabular}
+\caption{Pooled-pairwise agreement, Benchmark~3 (full 506-clip pool).}
+\end{table}
+
+By this test, \texttt{scenario}, \texttt{condition}, and \texttt{noun} are
+inside the human envelope ($\kappa_{\mathrm{qh}} \approx \kappa_{\mathrm{hh}}$
+or, for \texttt{condition}, exactly equal), while \texttt{verb} and
+\texttt{flavor} fall well outside it ($\kappa_{\mathrm{qh}}$ roughly
+$0.4\times$ the human value in both cases) --- the same conclusion drawn
+qualitatively from the rater-agreement heatmap, now with a single scalar
+per field.

@@ -1,0 +1,103 @@
+\section{Plurality consensus and confusion under structural missingness}
+\label{sec:consensus}
+
+\subsection{Plurality (majority-vote) consensus labels}
+
+For a clip $j$ labeled by raters $H_{i_1},\dots,H_{i_m}$ ($m\ge 2$), let
+$v_j(c) = \big|\{r : y^{H_{i_r}}_j = c\}\big|$ count votes for category $c$.
+
+\begin{definition}[Plurality consensus]
+Let $c_{(1)}, c_{(2)}$ be the categories with the largest and
+second-largest vote counts, $v_{(1)} \ge v_{(2)}$ (ties broken
+arbitrarily among tied runners-up). The consensus label is defined only
+when the winner is \emph{strict}:
+\[
+  \hat{Y}_j \;=\;
+  \begin{cases}
+    c_{(1)} & \text{if } v_{(1)} > v_{(2)}, \\
+    \text{undefined} & \text{if } v_{(1)} = v_{(2)}\ \ (\text{exact tie}).
+  \end{cases}
+\]
+\end{definition}
+
+With $m=3$ raters, a tie is possible only when all three raters disagree
+($v_{(1)} = v_{(2)} = v_{(3)} = 1$); a $2$-$1$ split always yields a defined
+consensus. With $m = 2$, consensus is defined exactly when the two raters
+agree ($v_{(1)}=2$). Benchmark~3's accuracy-vs-consensus metric,
+\[
+  \mathrm{Acc}_{\mathrm{cons}}(f) \;=\;
+  \frac{1}{|\mathcal{J}_f|}\sum_{j \in \mathcal{J}_f}
+  \mathbb{1}\!\left[y^{\mathrm{Q}}_j = \hat{Y}_j\right], \qquad
+  \mathcal{J}_f = \{\, j : \hat{Y}_j \text{ defined for field } f \,\},
+\]
+is therefore computed over clips where the humans reached a strict
+plurality, which structurally excludes the hardest 3-way-split clips and
+should be read as an upper bound on how well Qwen matches human judgment on
+the pool as a whole.
+
+\subsection{Difficulty transfer as a stratified accuracy}
+
+Partition $\mathcal{J}_f$ by the winning margin $v_{(1)} - v_{(2)}$ (for
+$m=3$: \emph{unanimous} when $v_{(1)}=3$, \emph{majority} when $v_{(1)}=2$;
+for $m=2$: \emph{agree} when $v_{(1)}=2$, and treat a raw $1$-$1$
+\emph{split} as its own stratum where a prediction counts as correct if it
+matches \emph{either} rater). The \emph{difficulty-transfer} statistic is
+the plurality accuracy computed separately within each stratum,
+\[
+  \mathrm{Acc}_{\mathrm{cons}}(f \mid \text{stratum } s)
+  \;=\; \frac{1}{|\mathcal{J}_f \cap s|}\sum_{j \in \mathcal{J}_f \cap s}
+  \mathbb{1}\!\left[y^{\mathrm{Q}}_j = \hat{Y}_j\right].
+\]
+
+\begin{proposition}[Monotone difficulty transfer implies shared ambiguity]
+\label{prop:difficulty}
+Suppose model errors are conditionally independent of human disagreement
+given the (unobserved) intrinsic ambiguity $A_j\in[0,1]$ of clip $j$, and
+that $A_j$ jointly increases both the probability a human rater deviates
+from the modal label and the probability the model deviates from it. Then
+$\mathrm{Acc}_{\mathrm{cons}}(f\mid s)$ is monotonically decreasing as $s$
+ranges from \emph{unanimous} to \emph{split}. Observing this monotone
+decrease (empirically: $84.6\% \to 42.6\%$ for scenario, unanimous vs.\
+majority) is evidence \emph{for} the shared-ambiguity model over the
+alternative hypothesis that Qwen's errors are i.i.d.\ and uncorrelated with
+clip difficulty, since the latter predicts a flat
+$\mathrm{Acc}_{\mathrm{cons}}(f\mid s)$ across strata.
+\end{proposition}
+
+\subsection{Structural (MNAR) missingness of conditional fields}
+
+The four fields \texttt{verb}, \texttt{additional\_condition}, \texttt{noun},
+\texttt{flavor\_profile} are only elicited from a rater when that rater's
+own \texttt{scenario} answer is not \texttt{not-eating}. This is missingness
+\emph{not at random} (MNAR) in the classical taxonomy: whether $y^{r}_{j,f}$
+is observed for rater $r$, field $f$, clip $j$ is a deterministic function
+of that same rater's \texttt{scenario} label, $R^r_{j} =
+\mathbb{1}[y^r_{j,\text{scenario}} \ne \text{not-eating}]$, which is exactly
+the mechanism that generates the field values themselves.
+
+\begin{definition}[Comparable-pair restriction]
+For a conditional field $f$ and a pair of raters $(A,B)$ on clip $j$, the
+pair contributes to the pooled comparison only when \emph{both} raters
+observed the field:
+\[
+  (y^A_{j,f}, y^B_{j,f}) \in \mathcal{P}_f
+  \iff R^A_j = 1 \ \text{and}\ R^B_j = 1 .
+\]
+\end{definition}
+
+\begin{remark}[Why this restriction is necessary, and what it costs]
+Comparing on $R^A_j = R^B_j = 1$ only is required because a blank value
+means ``not elicited,'' not ``elicited and equal to the empty
+string''--- treating it as its own category would inflate agreement
+whenever two raters agree on \texttt{scenario} being \texttt{not-eating}
+(the fields are trivially equal by construction, contributing no
+information about the conditional field itself). The cost is a
+selection effect: $\mathcal{P}_f$ is implicitly conditioned on
+\emph{scenario agreement} between $A$ and $B$, so $\kappa_{\mathrm{qh}}$
+for \texttt{verb}/\texttt{flavor}/\texttt{noun}/\texttt{condition}
+already excludes the subset of clips where Qwen and the human disagree
+about whether eating is happening at all --- the reported $n$ for these
+fields ($n{=}432$ for Qwen$\leftrightarrow$human vs.\ $n{=}347$ for
+human$\leftrightarrow$human, Benchmark~3) reflects exactly this
+conditioning, not a data-loss artifact.
+\end{remark}

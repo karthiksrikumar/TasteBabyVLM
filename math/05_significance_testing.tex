@@ -1,0 +1,111 @@
+\section{Significance of the human-fed blind spot across independent interventions}
+\label{sec:significance}
+
+\subsection{A single-condition test}
+
+Benchmark~2 evaluated agency accuracy on the $n=17$ clips with true label
+\texttt{human-fed} under several independent elicitation conditions:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lr}
+\toprule
+Condition & Agency accuracy, true human-fed ($n=17$) \\
+\midrule
+Composite verb question                & $0\%$ \\
+Agency asked alone                      & $0\%$ \\
+``Whose hand holds the food?'' (perception probe) & $6\%$ \\
+Describe-people-first scaffold          & $18\%$ \\
+``fed-by-another-person'' rewording     & $0\%$ \\
+\bottomrule
+\end{tabular}
+\caption{Reproduced from Benchmark 2 / Benchmark 5.}
+\label{tab:agency-conditions}
+\end{table}
+
+Fix a null hypothesis $H_0$: the model's per-trial probability of correctly
+identifying agency on a true human-fed clip is some baseline rate $p_0$
+representative of ``the model can perceive agency at least as well as it
+does on the easier self-fed subgroup'' (empirically $\approx 90\%$ there),
+or, more conservatively, $p_0 = 0.5$ (``no better than an agency coin
+flip''). Under $H_0$, with $K$ the number of correct calls out of $n=17$
+i.i.d.\ trials, $K \sim \mathrm{Binomial}(17, p_0)$, and the observed
+$K=0$ has one-sided p-value
+\[
+  \Pr(K \le 0 \mid n=17, p_0) \;=\; (1-p_0)^{17}.
+\]
+\[
+  p_0 = 0.5: \quad (0.5)^{17} \approx 7.6\times 10^{-6}, \qquad
+  p_0 = 0.9: \quad (0.1)^{17} \approx 10^{-17}.
+\]
+Either way, observing zero correct calls out of 17 is not plausibly
+explained by ordinary sampling noise around a reasonable baseline rate ---
+it is evidence the true per-trial success probability on this subgroup is
+near zero, not merely below its self-fed-subgroup counterpart.
+
+\subsection{Combining across independent conditions: Fisher's method}
+
+Table~\ref{tab:agency-conditions} contains five \emph{semi-independent}
+probes (independent in the sense that each perturbs a different aspect of
+elicitation --- question framing, isolated sub-question, pure perception,
+reasoning scaffold, label vocabulary --- rather than being repeated trials
+of the identical prompt). Let $p_i$ be the one-sided binomial p-value
+computed as above (under $H_0{:}\,p_0=0.5$) for condition $i \in
+\{1,\dots,5\}$, using the reported accuracy to back out an equivalent
+integer success count $K_i = \mathrm{round}(0.17 \times \mathrm{acc}_i)$
+out of $n=17$:\footnote{$K_i = 0$ for the three $0\%$ conditions, $K_i=1$
+for the $6\%$ probe, $K_i=3$ for the $18\%$ scaffold.}
+
+\begin{definition}[Fisher's combined probability test]
+\[
+  \chi^2_{\mathrm{combined}} \;=\; -2\sum_{i=1}^{5} \ln p_i \;\sim\; \chi^2_{2\times 5 = 10} \quad \text{under } H_0.
+\]
+\end{definition}
+
+With $p_1=p_2=p_5 = \Pr(K\le 0\mid n{=}17,p_0{=}0.5) \approx 7.63\times10^{-6}$
+(the three $0\%$ conditions),
+$p_3 = \Pr(K\le 1\mid n{=}17,p_0{=}0.5) \approx 1.37\times10^{-4}$, and
+$p_4 = \Pr(K\le 3\mid n{=}17,p_0{=}0.5) \approx 6.36\times10^{-3}$,
+\[
+  \chi^2_{\mathrm{combined}} \;\approx\; -2\big(3\ln(7.63\times10^{-6}) + \ln(1.37\times10^{-4}) + \ln(6.36\times10^{-3})\big) \;\approx\; 98.6,
+\]
+against a $\chi^2_{10}$ null distribution whose $99.9$th percentile is
+about $29.6$ --- the combined statistic exceeds it by more than $3\times$,
+giving a combined p-value (numerically, $\mathrm{sf}_{\chi^2_{10}}(98.6)
+\approx 1.0\times10^{-16}$) many orders of magnitude below any conventional
+significance threshold.
+
+\begin{remark}[What this rules in and rules out]
+This computation does not claim the five conditions are statistically
+independent in the strict i.i.d.\ sense (they share the same 17 clips and
+the same underlying model weights), so the nominal $\chi^2_{10}$
+$p$-value should be read qualitatively rather than taken at face value.
+What it does formalize is the qualitative argument used in
+Section~\ref{sec:reliability}: a fixable \emph{prompting} deficiency
+predicts that \emph{at least one} of five substantially different framings
+(especially the pure-perception probe, which asks nothing about the
+taxonomy at all) should recover non-trivial accuracy, whereas a
+\emph{perceptual} deficiency in how the visual encoder or attention
+mechanism attributes a hand to a person predicts exactly the observed
+pattern: uniformly near-zero accuracy regardless of how the question is
+phrased, with only the scaffold condition --- which adds an explicit
+step of \emph{describing} what is seen before answering --- producing a
+partial (and still far from adequate) recovery to $18\%$.
+\end{remark}
+
+\subsection{Interaction with the few-shot result}
+
+Benchmark~5, Part B adds a sixth and seventh condition (4-shot and 8-shot
+in-context demonstrations, the latter explicitly including two human-fed
+examples) and observes $0\%$ agency accuracy on true human-fed clips at
+\emph{both} shot counts. Extending the binomial argument, providing
+correctly labeled human-fed exemplars in-context is the single
+intervention most directly targeted at a demonstration-availability
+explanation of the failure (``the model has never been shown what
+human-fed looks like in this schema''); its failure to move $K$ away from
+$0$ is the strongest single piece of evidence in the suite that the
+deficit is not remediable by prompting or in-context learning at the
+current model scale, and would require either fine-tuning on labeled
+human-fed examples or an architectural/attention-level intervention (e.g.\
+person-conditioned attention, as sketched by the scaffold condition's
+partial success) to resolve.

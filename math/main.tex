@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\E}{\operatorname{E}}
+
+\title{Mathematical Foundations of the Qwen3-VL Taste-Annotation\\Evaluation Suite}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note formalizes the statistics used throughout the five-benchmark
+evaluation of Qwen3-VL-30B as an automated taste-annotation labeler
+(\texttt{qwen\_evaluation\_suite/}). It covers: (1) pairwise Cohen's
+$\kappa$ and the ``agreement envelope'' framing used to compare model--human
+agreement against human--human agreement; (2) plurality consensus labeling
+and the confusion-matrix decomposition used under structurally missing
+(conditional) fields; (3) the cosine-similarity relaxation of exact-match
+accuracy used for the free-text \texttt{noun} field, with a worked
+decomposition matching the observed numbers; (4) classical test theory
+applied to rater reliability, proving that self-consistency (test--retest
+agreement) is necessary but not sufficient for validity, with the
+suite's own ``self-fed'' bias as the canonical counterexample; and (5) a
+significance test formalizing the claim that five independent ablations
+all failing to move human-fed agency accuracy off $0\%$ constitutes strong
+evidence of a genuine perceptual ceiling rather than a fixable prompting
+gap.
+\end{abstract}
+
+\tableofcontents
+
+\input{01_kappa}
+\input{02_consensus_confusion}
+\input{03_semantic_similarity}
+\input{04_reliability_theory}
+\input{05_significance_testing}
+
+\end{document}

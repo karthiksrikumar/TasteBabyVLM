@@ -1,0 +1,18 @@
+Qwen verb diagnostic — sub-skill and ablation results
+
+  Full verb (composite)             41.7%
+  Full verb (scaffolded)            52.1%
+  Full verb (reworded)              43.8%
+  Agency (from composite)           58.3%
+  Agency (asked alone)              54.2%
+  Agency (whose-hand probe)         62.5%
+  Instrument (from composite)       68.8%
+  Instrument (asked alone)          77.1%
+
+Frame sweep (full verb): 4f=43.8%  8f=41.7%  16f=45.8%  32f=47.9%
+
+  agency acc [composite         ] self-fed clips  90.3% | human-fed clips   0.0%
+  agency acc [agency-only       ] self-fed clips  83.9% | human-fed clips   0.0%
+  agency acc [whose-hand probe  ] self-fed clips  93.5% | human-fed clips   5.9%
+  agency acc [scaffolded        ] self-fed clips  74.2% | human-fed clips  17.6%
+  agency acc [reworded          ] self-fed clips  90.3% | human-fed clips   0.0%

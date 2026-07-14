@@ -1,0 +1,90 @@
+\section{Cosine similarity as a soft relaxation of exact-match accuracy}
+\label{sec:cosine}
+
+\subsection{Embedding cosine similarity}
+
+The \texttt{noun} field is free text (``cereal'', ``sippy cup'',
+``baked beans'', \dots), so exact-string accuracy penalizes correct-but-
+differently-worded answers as harshly as wrong ones. Let
+$e:\mathcal{W}\to\mathbb{R}^d$ be a sentence-embedding map (MiniLM,
+$d=384$) with $\lVert e(w)\rVert_2 = 1$ for all $w$ (embeddings are
+L2-normalized before comparison). For ground-truth noun $g_i$ and
+predicted noun $\hat{g}_i$ on clip $i$,
+\[
+  \mathrm{sim}(g_i,\hat{g}_i) \;=\; \cos\theta_i \;=\;
+  \frac{e(g_i)\cdot e(\hat{g}_i)}{\lVert e(g_i)\rVert\,\lVert e(\hat{g}_i)\rVert}
+  \;=\; e(g_i)\cdot e(\hat{g}_i) \in [-1,1],
+\]
+the last equality using unit normalization. Because $e$ is trained so that
+semantically related words are embedded nearby, $\mathrm{sim}$ acts as a
+continuous relaxation of the indicator $\mathbb{1}[g_i = \hat{g}_i]$:
+identical strings give $\mathrm{sim}=1$ exactly, while near-synonyms
+(``sippy cup'' vs.\ ``bottle'') give intermediate values and unrelated
+words give values near $0$ or below.
+
+\subsection{Soft accuracy and its relation to exact-match accuracy}
+
+\begin{definition}[Soft accuracy at threshold $\tau$]
+\[
+  \mathrm{Acc}_{\mathrm{soft}}(\tau) \;=\;
+  \frac{1}{n}\sum_{i=1}^n \mathbb{1}\!\left[\mathrm{sim}(g_i,\hat{g}_i) \ge \tau\right].
+\]
+\end{definition}
+Exact-match accuracy is the degenerate case $\mathrm{Acc}_{\mathrm{exact}}
+= \mathrm{Acc}_{\mathrm{soft}}(1)$ under an embedding where distinct
+strings almost never map to identical vectors, and the mean similarity
+$\overline{\mathrm{sim}} = \frac{1}{n}\sum_i \mathrm{sim}(g_i,\hat{g}_i)$
+reported throughout the suite is not a threshold accuracy but a
+continuous summary of the same quantity.
+
+\begin{proposition}[Decomposition of mean similarity by exact-match status]
+\label{prop:decomp}
+Let $\mathcal{M} = \{i : g_i = \hat{g}_i\}$ (exact matches, contributing
+$\mathrm{sim}_i = 1$) and $\mathcal{M}^c$ its complement, with
+$m = |\mathcal{M}^c|/n$ the mean similarity restricted to mismatches. Then
+\[
+  \overline{\mathrm{sim}}
+  = \mathrm{Acc}_{\mathrm{exact}} \cdot 1 \;+\; (1-\mathrm{Acc}_{\mathrm{exact}})\cdot \bar{m},
+  \qquad
+  \bar{m} \;=\; \frac{\overline{\mathrm{sim}} - \mathrm{Acc}_{\mathrm{exact}}}{1 - \mathrm{Acc}_{\mathrm{exact}}}.
+\]
+\end{proposition}
+\begin{proof}
+Split the sum defining $\overline{\mathrm{sim}}$ over $\mathcal{M}$ and
+$\mathcal{M}^c$; every term in $\mathcal{M}$ equals $1$ by definition of
+exact match, and $|\mathcal{M}|/n = \mathrm{Acc}_{\mathrm{exact}}$.
+Rearranging gives $\bar m$.
+\end{proof}
+
+\subsection{Worked example (Benchmark 1)}
+
+Benchmark~1 reports, on the annotator-5 eval set restricted to human
+eating/possibly-eating clips, $\mathrm{Acc}_{\mathrm{exact}} = 70.8\%$
+($n=48$) and $\overline{\mathrm{sim}} = 82.0\%$ ($n=46$; two additional
+clips were excluded where the human noun was blank, so the identity below
+is approximate rather than exact over an identical index set). Applying
+Proposition~\ref{prop:decomp} with these figures,
+\[
+  \bar m \;\approx\; \frac{0.820 - 0.708}{1 - 0.708} \;\approx\; 0.384,
+\]
+i.e.\ on the $\approx 29\%$ of clips where Qwen's noun did \emph{not}
+exactly match the human's, the two words were on average only weakly
+related (cosine $\approx 0.38$) rather than close synonyms. Cross-checking
+against the raw pairs reported in the suite (e.g.\ \texttt{cereal
+$\to$ (none)} at $0.13$, \texttt{banana $\to$ bottle} at $0.42$,
+\texttt{beans $\to$ baked beans} at $0.81$) confirms the mismatches are a
+mix of outright misses (Qwen abstaining or picking an unrelated object)
+and near-misses (a related but non-identical object), consistent with
+$\bar m$ sitting well below $1$ but above $0$.
+
+\begin{remark}[Why $\overline{\mathrm{sim}} \ge \mathrm{Acc}_{\mathrm{exact}}$
+is not automatic]
+Proposition~\ref{prop:decomp} shows $\overline{\mathrm{sim}} >
+\mathrm{Acc}_{\mathrm{exact}}$ exactly when $\bar m > 0$, i.e.\ when the
+model's \emph{mistakes} are, on average, still semantically closer to the
+truth than two independently drawn nouns would be. This is an empirical
+property of the model's error distribution, not a mathematical
+guarantee --- a model that fails by naming a semantically unrelated object
+every time it is wrong would have $\bar m \le 0$ and could show
+$\overline{\mathrm{sim}} < \mathrm{Acc}_{\mathrm{exact}}$.
+\end{remark}

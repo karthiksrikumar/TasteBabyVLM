@@ -1,0 +1,5 @@
+Touch-corpus transfer — 240 clips, parse failures 0
+scenario: eating=14, possibly-eating=10, not-eating=216
+mean description length: 32.1 words
+distinct nouns on eating clips: 16
+human audit sample (21 clips): /usr4/spclpgm/srikumar/qwen_touch_transfer_results/human_audit_sample.json

@@ -1,0 +1,104 @@
+\section{Classical test theory: reliability is not validity}
+\label{sec:reliability}
+
+\subsection{Reliability as test--retest agreement}
+
+Classical test theory models an observed measurement as
+$X = T + E$, a true-score component $T$ plus measurement error $E$
+with $\E[E]=0$ and $\Cov(T,E)=0$. The \emph{reliability} of the
+measurement procedure is
+\[
+  \rho_{XX'} \;=\; \frac{\Var(T)}{\Var(X)} \;=\; \frac{\Var(T)}{\Var(T)+\Var(E)},
+\]
+estimated in practice by the correlation (for continuous scores) or
+percent agreement / $\kappa$ (for categorical labels) between two
+independent applications of the same measurement procedure to the same
+items --- exactly Benchmark~5's construction: Qwen labels the same $101$
+clips three times with sampling ($T{=}0.7$), and the pooled pairwise
+agreement across the $\binom{3}{2}=3$ run-pairs estimates $\rho_{XX'}$
+for each field.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\toprule
+Field & Qwen self-agreement $\hat\rho_{XX'}$ & human$\leftrightarrow$human agreement \\
+\midrule
+scenario  & 88.1\% & 64.8\% \\
+verb      & 91.2\% & 69.5\% \\
+condition & 90.4\% & 71.5\% \\
+flavor    & 93.4\% & 64.6\% \\
+noun      & 87.5\% & 60.7\% \\
+\bottomrule
+\end{tabular}
+\caption{Benchmark 5, Part A: Qwen is more self-consistent than independent
+humans are with each other, on every field.}
+\end{table}
+
+\subsection{The attenuation bound: reliability limits, but does not imply, validity}
+
+Let $Y$ denote the (human-consensus) ground truth and $X$ the model's
+label, both modeled as noisy measurements of a shared underlying construct.
+The classical \emph{attenuation formula} relates the correlation between
+two noisy measurements to their individual reliabilities:
+\[
+  \rho_{XY} \;\le\; \sqrt{\rho_{XX'}\,\rho_{YY'}}.
+\]
+
+\begin{proposition}[Reliability is necessary, not sufficient, for validity]
+\label{prop:necessary-not-sufficient}
+High self-agreement $\rho_{XX'}$ upper-bounds, but does not lower-bound,
+agreement with ground truth $\rho_{XY}$: $\rho_{XX'}=1$ is consistent with
+$\rho_{XY}=0$.
+\end{proposition}
+\begin{proof}
+Let $X \equiv b$ be a \emph{constant} predictor (formally, $X_i = b$ for
+every item $i$, independent of any input). Two independent applications of
+this ``measurement procedure'' agree on every item, so its test--retest
+agreement is $1$ (perfect reliability: $\Var(E) = 0$, so $\rho_{XX'}=1$
+trivially, since $\Var(T) = \Var(X) = 0$ degenerates the ratio to $1$ by
+convention for a constant). Yet if the true label $Y_i$ varies across items
+and is not itself constant, $\Cov(X,Y) = 0$ identically (a constant has
+zero covariance with anything), so $\rho_{XY} = 0$. This satisfies the
+attenuation bound ($0 \le \sqrt{1\cdot\rho_{YY'}}$) with equality only
+failing to be tight, exhibiting a case of maximal reliability and zero
+validity.
+\end{proof}
+
+\begin{corollary}[Application to the observed self-fed prior]
+\label{cor:self-fed}
+Model the \texttt{verb} agency sub-field, restricted to clips where the
+true agency is \texttt{human-fed}, as $X_i \approx \texttt{self}$ for
+(nearly) every such clip $i$ --- an approximately constant predictor on
+this subpopulation, per Benchmark~2's finding of $0\%$ agreement with
+truth across five independent elicitation conditions
+(Table~\ref{tab:agency-conditions}, reproduced from Section~5). By
+Proposition~\ref{prop:necessary-not-sufficient}'s mechanism, this
+near-constant behavior is exactly what produces high measured
+\emph{self-agreement} on the field overall ($91.2\%$, Table above,
+pooling both agency subpopulations) while contributing systematically
+zero validity on the human-fed subpopulation specifically. Reliability
+computed on the \emph{marginal} field distribution therefore masks a
+validity failure that is only visible once the field is stratified by
+true label --- the same diagnostic principle underlying
+Proposition~\ref{prop:difficulty}'s stratification for consensus accuracy.
+\end{corollary}
+
+\subsection{Bias--variance view of the same phenomenon}
+
+Equivalently, write the per-item error as
+$\Delta_i = \mathbb{1}[X_i \ne Y_i]$ and decompose the population error
+rate on a subgroup $s$ (e.g.\ true label $=$ human-fed) as
+\[
+  \E_s[\Delta] \;=\; \underbrace{\big(\Pr(X = \texttt{self} \mid s) - 0\big)}_{\text{systematic bias on } s}
+  \;+\; \underbrace{\text{(noise-driven disagreement with } Y \text{ within } s\text{)}}_{\text{variance term}} .
+\]
+A rater with zero variance (perfectly reliable, in the test--retest sense)
+but $100\%$ systematic bias toward one label on a subgroup contributes
+$\E_s[\Delta] = 1$ on exactly that subgroup regardless of how reliable it
+is elsewhere --- reliability controls only the variance term, never the
+bias term, which is precisely why five independent interventions that only
+perturb \emph{how the question is asked} (Section~\ref{sec:significance})
+cannot repair a bias-dominated failure mode: none of them supply the
+missing visual/attentional signal that would move $\Pr(X=\texttt{self}\mid
+\text{human-fed})$ away from its default.

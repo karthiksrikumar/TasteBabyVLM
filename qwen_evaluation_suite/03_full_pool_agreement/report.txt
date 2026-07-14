@@ -1,0 +1,19 @@
+Full-pool benchmark — Qwen as a 12th annotator
+
+field           κ h↔h    κ q↔h    % h↔h    % q↔h
+scenario         0.44     0.42    64.8%    64.3%
+verb             0.62     0.26    69.5%    40.5%
+additional_condition     0.28     0.28    71.5%    76.4%
+flavor_profile     0.52     0.26    64.6%    44.2%
+noun             0.55     0.48    60.7%    57.8%
+
+consensus acc scenario                72.8% (n=334)
+consensus acc verb                    37.4% (n=155)
+consensus acc additional_condition    71.2% (n=156)
+consensus acc flavor_profile          40.0% (n=150)
+consensus acc noun                    62.3% (n=122)
+
+difficulty [unanimous (3/3) ]  84.6% (n=91)
+difficulty [majority (2/3)  ]  42.6% (n=94)
+difficulty [2 raters agree  ]  79.5% (n=166)
+difficulty [2 raters split  ]  74.7% (n=75)
